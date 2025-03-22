@@ -23,11 +23,12 @@ pub fn render(app: &mut App, frame: &mut Frame) {
     .direction(Direction::Vertical)
     .constraints([
         Constraint::Length(3),  // area1
-        Constraint::Percentage(40),  // area2
-        Constraint::Percentage(40),  // area3
+        Constraint::Percentage(10),  // area2
+        Constraint::Percentage(30),  // area3
+        Constraint::Percentage(60),  // area4
     ])
     .split(frame.size());
-    let [area1, area2, area3] = [chunks[0], chunks[1], chunks[2]];
+    let [area1, area2, area3,area4] = [chunks[0], chunks[1], chunks[2],chunks[3]];
 
 
     // TODO: get the list of cities
@@ -81,7 +82,7 @@ pub fn render(app: &mut App, frame: &mut Frame) {
             city.name, city.temperature, city.humidity, city.wind_speed
         ))
         .block(Block::default()
-            .title("Weather Details")
+            .title("Basic Weather Details")
             .borders(Borders::ALL)
             .border_style(Style::default().fg(Color::Cyan)))
         .wrap(Wrap { trim: true });
@@ -101,7 +102,40 @@ pub fn render(app: &mut App, frame: &mut Frame) {
 
     // TODO: Create the weather info component
     // let weather_info =
-
+    if let Some(city) = selected_city {
+        // Create advanced weather details paragraph
+        let advanced_info = Paragraph::new(format!(
+            "Feels Like: {}°C\nMin/Max: {}°C / {}°C\nPressure: {} hPa\n\nWeather: {}\nDescription: {}\n\nWind Direction: {}°\nCloudiness: {}%\nVisibility: {} m\n\nSunrise: {}\nSunset: {}",
+            city.feels_like,
+            city.temp_min,
+            city.temp_max,
+            city.pressure,
+            city.weather_main,
+            city.weather_description,
+            city.wind_direction,
+            city.cloudiness,
+            city.visibility,
+            city.sunrise_formatted(),
+            city.sunset_formatted()
+        ))
+        .block(Block::default()
+            .title("Advanced Weather Details")
+            .borders(Borders::ALL)
+            .border_style(Style::default().fg(Color::Cyan)))
+        .wrap(Wrap { trim: true });
+    
+        // Render the advanced weather info component
+        frame.render_widget(advanced_info, area4);
+    } else {
+        // Fallback if no city is selected
+        let no_selection = Paragraph::new("No city selected")
+            .block(Block::default()
+                .title("Advanced Weather Details")
+                .borders(Borders::ALL))
+            .wrap(Wrap { trim: true });
+        
+        frame.render_widget(no_selection, area4);
+    }
     // TODO: Render the weather info component
     // frame.render_widget(weather_info, area);
 

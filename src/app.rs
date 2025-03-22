@@ -3,17 +3,54 @@ use std::fs::OpenOptions;
 use std::io::Write;
 use tokio::runtime::Runtime;
 use crate::connection::Connection;
+use chrono::{DateTime, Local, TimeZone, Utc};
 /// Application result type.
 pub type AppResult<T> = Result<T, Box<dyn error::Error>>;
 
 #[derive(Debug)]
 pub struct City {
+    // Base data
     pub name: String,
     pub selected: bool,
-    // Optional weather data fields
+    
+    // Main weather data
     pub temperature: f32,
+    pub feels_like: f32,
+    pub temp_min: f32,
+    pub temp_max: f32,
     pub humidity: u8,
+    pub pressure: u32,
+    
+    // Wind data
     pub wind_speed: f32,
+    pub wind_direction: u16,
+    
+    // Weather description
+    pub weather_main: String,
+    pub weather_description: String,
+    pub weather_icon: String,
+    
+    // Additional data
+    pub visibility: u32,
+    pub cloudiness: u8,
+    pub country: String,
+    pub sunrise: DateTime<Local>,
+    pub sunset: DateTime<Local>,
+}
+impl City {
+    // Helper method to get weather icon URL
+    pub fn icon_url(&self) -> String {
+        format!("https://openweathermap.org/img/wn/{}@2x.png", self.weather_icon)
+    }
+    
+    // Helper to get formatted time
+    pub fn sunrise_formatted(&self) -> String {
+        self.sunrise.format("%H:%M").to_string()
+    }
+    
+    pub fn sunset_formatted(&self) -> String {
+        self.sunset.format("%H:%M").to_string()
+    }
 }
 /// Application.
 #[derive(Debug)]
